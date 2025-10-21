@@ -1,10 +1,29 @@
+import os
+import sys
 import torch
 import torch.nn as nn
 import torch.optim as optim
 import numpy as np
 from typing import List, Tuple, Dict
+import gymnasium as gym
+from gymnasium import spaces
 import random
 from collections import deque
+
+project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(project_root)
+
+try:
+    from config import MODEL_DIR, TRAINING_CONFIG
+except ImportError:
+    # Fallback values
+    MODEL_DIR = "data/models"
+    TRAINING_CONFIG = {
+        'learning_rate': 0.001,
+        'gamma': 0.99,
+        'batch_size': 64,
+        'epochs': 1000,
+    }
 
 class ActorNetwork(nn.Module):
     def __init__(self, input_dim: int, output_dim: int, hidden_dim: int = 128):
@@ -20,6 +39,33 @@ class ActorNetwork(nn.Module):
     
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         return self.network(x)
+
+def save_models(self, episode: int):
+    """Save all agent models using config paths"""
+    # Create model directory if it doesn't exist
+    os.makedirs(MODEL_DIR, exist_ok=True)
+    
+    for i, actor in enumerate(self.actors):
+        torch.save(actor.state_dict(), f"{MODEL_DIR}/actor_agent_{i}_ep_{episode}.pth")
+    
+    for i, critic in enumerate(self.critics):
+        torch.save(critic.state_dict(), f"{MODEL_DIR}/critic_agent_{i}_ep_{episode}.pth")
+    
+    print(f"💾 Models saved to {MODEL_DIR} at episode {episode}")
+
+def load_models(self, episode: int):
+    """Load agent models"""
+    for i, actor in enumerate(self.actors):
+        model_path = f"{MODEL_DIR}/actor_agent_{i}_ep_{episode}.pth"
+        if os.path.exists(model_path):
+            actor.load_state_dict(torch.load(model_path))
+    
+    for i, critic in enumerate(self.critics):
+        model_path = f"{MODEL_DIR}/critic_agent_{i}_ep_{episode}.pth"
+        if os.path.exists(model_path):
+            critic.load_state_dict(torch.load(model_path))
+    
+    print(f"📂 Models loaded from {MODEL_DIR} episode {episode}")
 
 class CriticNetwork(nn.Module):
     def __init__(self, input_dim: int, hidden_dim: int = 128):

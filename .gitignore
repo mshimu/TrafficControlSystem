@@ -1,0 +1,235 @@
+# AI Traffic Control System - Git Ignore File
+# ===========================================
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IPython
+profile_default/
+ipython_config.py
+
+# pyenv
+.python-version
+
+# pipenv
+Pipfile.lock
+
+# PEP 582
+__pypackages__/
+
+# Celery stuff
+celerybeat-schedule
+celerybeat.pid
+
+# SageMath parsed files
+*.sage.py
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject
+
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# Data and Model Files
+# ====================
+data/models/*.pth
+data/models/*.pt
+data/models/*.h5
+data/models/*.keras
+data/models/checkpoints/
+!data/models/README.md
+
+data/logs/
+!data/logs/README.md
+
+data/results/
+!data/results/README.md
+
+data/datasets/raw/
+data/datasets/processed/
+!data/datasets/README.md
+
+# Training artifacts
+training/checkpoints/
+training/runs/
+training/tensorboard/
+training/wandb/
+
+# Simulation specific
+environments/networks/*.rou.xml
+environments/networks/*.sumocfg
+environments/networks/*.net.xml
+environments/networks/emergency_routes.xml
+
+# Web application
+web_app/static/uploads/
+web_app/instance/
+
+# OS generated files
+# =================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE and Editor files
+# ====================
+# PyCharm
+.idea/
+*.iws
+*.iml
+*.ipr
+
+# VS Code
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Eclipse
+.project
+.pydevproject
+.settings/
+
+# Vim
+*.swp
+*.swo
+*~
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save/
+tramp
+.\#*
+
+# MkDocs
+docs/_build/
+
+# System files
+# ============
+*.tmp
+*.temp
+*.log
+*.pid
+*.seed
+*.pid.lock
+
+# Large files
+# ===========
+*.zip
+*.tar.gz
+*.7z
+
+# Custom project files
+# ====================
+# Configuration overrides (keep original config.yaml)
+config_local.yaml
+*.local.yaml
+
+# Temporary simulation files
+simulation_dump_*
+traffic_dump_*
+
+# Performance profiles
+profile_results.prof
+memory_usage.json
+
+# Experiment results (large files)
+experiments/*/models/
+experiments/*/videos/
+experiments/*/large_data/
+
+# Keep these patterns (important files)
+!environments/networks/simple_grid.net.xml
+!environments/networks/simple_grid.sumocfg
+!environments/networks/simple_grid.rou.xml
+!environments/networks/emergency_routes.xml
+!training/config.yaml
+!requirements.txt
+!environment.yml
+!README.md

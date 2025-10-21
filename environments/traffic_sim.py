@@ -1,27 +1,46 @@
 import traci
 import numpy as np
-import gym
-from gym import spaces
+import gymnasium as gym
+from gymnasium import spaces
 import os
 import random
+import sys  
 from typing import Dict, List, Tuple
 
+# ← ADD THESE LINES ↓
+project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(project_root)
+
+try:
+    from config import SUMO_BINARY, NETWORK_DIR, SIMULATION_CONFIG
+except ImportError as e:
+    print(f"Config import failed: {e}")
+    # Fallback values
+    SUMO_BINARY = "sumo-gui"
+    NETWORK_DIR = "environments/networks"
+    SIMULATION_CONFIG = {
+        'max_steps': 3600,
+        'step_length': 1, 
+        'emergency_spawn_prob': 0.001,
+        'num_intersections': 16,
+    }
+
 class TrafficSimulation(gym.Env):
-    def __init__(self, network_file: str, config_file: str, emergency_vehicles: bool = True):
+    def __init__(self, network_file: str = "simple_grid.sumocfg", emergency_vehicles: bool = True):  # ← REMOVED config_file parameter
         super().__init__()
         
-        # SUMO configuration
+        # SUMO configuration - UPDATE THESE LINES ↓
         self.network_file = network_file
-        self.config_file = config_file
-        self.sumo_cmd = ["sumo-gui", "-c", config_file, "--start", "--quit-on-end"]
+        config_file = f"{NETWORK_DIR}/{network_file}"  # ← USE CONFIG PATH
+        self.sumo_cmd = [SUMO_BINARY, "-c", config_file, "--start", "--quit-on-end"]  # ← USE SUMO_BINARY
         
-        # Simulation parameters
+        # Simulation parameters - UPDATE THESE LINES ↓
         self.simulation_step = 0
-        self.max_steps = 3600  # 1 hour simulation
+        self.max_steps = SIMULATION_CONFIG['max_steps']  # ← USE CONFIG
         self.emergency_vehicles = emergency_vehicles
         
         # Define action and observation spaces
-        self.num_intersections = 4  # 2x2 grid
+        self.num_intersections = SIMULATION_CONFIG['num_intersections']  # ← USE CONFIG
         self.num_phases = 4  # NS green, EW green, NS left, EW left
         
         # Action space: phase selection for each intersection
@@ -69,8 +88,8 @@ class TrafficSimulation(gym.Env):
         traci.simulationStep()
         self.simulation_step += 1
         
-        # Spawn emergency vehicles randomly
-        if self.emergency_vehicles and random.random() < 0.001:  # 0.1% chance per step
+        # Spawn emergency vehicles randomly - UPDATE THIS LINE ↓
+        if self.emergency_vehicles and random.random() < SIMULATION_CONFIG['emergency_spawn_prob']:  # ← USE CONFIG
             self._spawn_emergency_vehicle()
         
         # Update emergency vehicles tracking
@@ -82,8 +101,8 @@ class TrafficSimulation(gym.Env):
         # Get next observation
         observation = self._get_observation()
         
-        # Check if episode is done
-        done = self.simulation_step >= self.max_steps
+        # Check if episode is done - UPDATE THIS LINE ↓
+        done = self.simulation_step >= SIMULATION_CONFIG['max_steps']  # ← USE CONFIG
         
         # Update metrics
         self._update_metrics()
