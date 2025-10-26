@@ -188,7 +188,7 @@ class EmergencyDetector:
         
         return False
 
-class EmergencyTrafficManager:
+class EmergencyModule:
     """Manages traffic light priorities for emergency vehicles"""
     
     def __init__(self):
@@ -276,4 +276,4 @@ class EmergencyTrafficManager:
         }
 
 # Global instance
-emergency_manager = EmergencyTrafficManager()
+emergency_manager = EmergencyModule()

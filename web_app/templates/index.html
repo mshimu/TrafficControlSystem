@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Traffic Control System</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-2.24.1.min.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>🤖 AI Traffic Control System</h1>
+        <p class="subtitle">Multi-Agent Reinforcement Learning for Smart Traffic Management</p>
+        
+        <!-- Control Panel -->
+        <div class="control-panel panel">
+            <h2>Control Panel</h2>
+            
+            <div class="connection-status">
+                <span class="status-indicator" id="connectionStatus"></span>
+                <span id="connectionText">Connecting to server...</span>
+            </div>
+            
+            <div class="alert alert-error" id="errorAlert">
+                <strong>Error:</strong> <span id="errorMessage"></span>
+            </div>
+            
+            <div class="alert alert-success" id="successAlert">
+                <span id="successMessage"></span>
+            </div>
+            
+            <div class="config-options">
+                <div class="config-option">
+                    <label>
+                        <input type="checkbox" id="useAI" checked> Use AI Control
+                    </label>
+                </div>
+                <div class="config-option">
+                    <label>
+                        <input type="checkbox" id="emergencyVehicles" checked> Enable Emergency Vehicles
+                    </label>
+                </div>
+                <div class="config-option">
+                    <label>
+                        Vehicle Density:
+                        <input type="range" id="vehicleDensity" min="1" max="10" value="5">
+                    </label>
+                </div>
+                <div class="config-option">
+                    <label>
+                        Simulation Speed:
+                        <input type="range" id="simSpeed" min="1" max="10" value="5">
+                    </label>
+                </div>
+            </div>
+            
+            <div class="control-section">
+                <button class="btn btn-start" onclick="startSimulation()">
+                    <span>▶</span> Start Simulation
+                </button>
+                <button class="btn btn-stop" onclick="stopSimulation()">
+                    <span>⏹</span> Stop Simulation
+                </button>
+                <button class="btn btn-reset" onclick="resetSimulation()">
+                    <span>🔄</span> Reset
+                </button>
+            </div>
+        </div>
+        
+        <!-- Simulation Visualization -->
+        <div class="simulation-area panel">
+            <h2>Live Simulation</h2>
+            <div class="canvas-container">
+                <canvas id="simulationCanvas" width="800" height="500"></canvas>
+            </div>
+            
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: #2ecc71;"></div>
+                    <span>Green Light</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: #e74c3c;"></div>
+                    <span>Red Light</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: #f39c12;"></div>
+                    <span>Yellow Light</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: #3498db;"></div>
+                    <span>Regular Vehicle</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: #e74c3c;"></div>
+                    <span>Emergency Vehicle</span>
+                </div>
+            </div>
+            
+            <div class="simulation-stats">
+                <div>Frame Rate: <span id="frameRate">0</span> FPS</div>
+                <div>Last Update: <span id="lastUpdate">-</span></div>
+            </div>
+        </div>
+        
+        <!-- Metrics Panel -->
+        <div class="metrics-panel panel">
+            <h2>Performance Metrics</h2>
+            <div id="metricsContainer">
+                <div class="metric-card">
+                    <div class="metric-value" id="waitingTime">0</div>
+                    <div class="metric-label">Total Waiting Time (s)</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="vehiclesCleared">0</div>
+                    <div class="metric-label">Vehicles Cleared</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="emergencyCleared">0</div>
+                    <div class="metric-label">Emergency Vehicles Cleared</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="averageSpeed">0</div>
+                    <div class="metric-label">Average Speed (m/s)</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="activeVehicles">0</div>
+                    <div class="metric-label">Active Vehicles</div>
+                </div>
+            </div>
+            <div id="metricsChart" style="width: 100%; height: 300px; margin-top: 20px;"></div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

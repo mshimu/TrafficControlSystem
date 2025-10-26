@@ -1,0 +1,36 @@
+<routes> 
+    <!-- Vehicle Types -->
+    <vType id="car" accel="2.6" decel="4.5" sigma="0.5" length="5.0" maxSpeed="55"/>
+    <vType id="emergency" accel="3.0" decel="6.0" sigma="0.3" length="6.0" maxSpeed="70" color="1,0,0"/>
+    
+    <!-- Simple Valid Routes -->
+    <route id="route_h1" edges="E0"/>        <!-- J0 → J1 -->
+    <route id="route_h2" edges="-E0"/>       <!-- J1 → J0 -->
+    <route id="route_h3" edges="E1"/>        <!-- J2 → J3 -->
+    <route id="route_h4" edges="-E1"/>       <!-- J3 → J2 -->
+    <route id="route_v1" edges="E2"/>        <!-- J0 → J2 -->
+    <route id="route_v2" edges="-E2"/>       <!-- J2 → J0 -->
+    <route id="route_v3" edges="E3"/>        <!-- J1 → J3 -->
+    <route id="route_v4" edges="-E3"/>       <!-- J3 → J1 -->
+    
+    <!-- Simple loop routes that actually connect -->
+    <route id="emergency_h" edges="E0"/>
+    <route id="emergency_v" edges="E2"/>
+    <route id="emergency_loop" edges="E0 E3 -E1 -E2"/> 
+
+    <!-- Loop routes -->
+    <route id="loop1" edges="E0 E3 -E1 -E2"/>
+    <route id="loop2" edges="E2 E1 -E3 -E0"/>
+    
+    <!-- Traffic Flows -->
+    <flow id="flow_h1" type="car" route="route_h1" begin="0" end="3600" probability="0.05"/>
+    <flow id="flow_h2" type="car" route="route_h2" begin="0" end="3600" probability="0.05"/>
+    <flow id="flow_v1" type="car" route="route_v1" begin="0" end="3600" probability="0.05"/>
+    <flow id="flow_v2" type="car" route="route_v2" begin="0" end="3600" probability="0.05"/>
+    <flow id="flow_l1" type="car" route="loop1" begin="0" end="3600" probability="0.02"/>
+    <flow id="flow_l2" type="car" route="loop2" begin="0" end="3600" probability="0.02"/>
+
+    <!-- Emergency Vehicle Flows -->
+    <flow id="em_flow_h" type="emergency" route="emergency_h" begin="0" end="3600" probability="0.005"/>
+    <flow id="em_flow_v" type="emergency" route="emergency_v" begin="0" end="3600" probability="0.005"/>
+</routes>

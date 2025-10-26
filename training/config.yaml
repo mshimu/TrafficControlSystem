@@ -1,0 +1,460 @@
+# AI Traffic Control System - Configuration File
+# ==============================================
+
+# System Configuration
+system:
+  name: "AI Traffic Control System"
+  version: "1.0.0"
+  mode: "training"  # training, evaluation, deployment
+  log_level: "INFO"  # DEBUG, INFO, WARNING, ERROR
+  random_seed: 42
+
+# Simulation Environment Configuration
+environment:
+  # Simulation parameters
+  simulation:
+    time_step: 1.0  # seconds per simulation step
+    max_steps: 10000  # maximum steps per episode
+    render: true  # whether to render visualization
+    render_fps: 30  # frames per second for rendering
+    
+  # Traffic generation
+  traffic:
+    spawn_rate: 2.0  # vehicles per minute
+    max_vehicles: 50  # maximum simultaneous vehicles
+    vehicle_types:
+      car: 0.7
+      truck: 0.2
+      motorcycle: 0.1
+    emergency_vehicle_probability: 0.05  # 5% chance of emergency vehicle
+    
+  # Junction configuration
+  junctions:
+    J0:
+      position: [100, 100]
+      connections: ["J1", "J2"]
+    J1:
+      position: [300, 100] 
+      connections: ["J0", "J3"]
+    J2:
+      position: [100, 300]
+      connections: ["J0", "J3"]
+    J3:
+      position: [300, 300]
+      connections: ["J1", "J2"]
+
+# AI Agent Configuration (MAPPO)
+mappo:
+  # Network architecture
+  network:
+    actor:
+      hidden_layers: [128, 128]
+      activation: "ReLU"
+      output_activation: "Softmax"
+    critic:
+      hidden_layers: [128, 128] 
+      activation: "ReLU"
+      output_activation: "Linear"
+    
+  # Training parameters
+  training:
+    learning_rate: 0.001
+    gamma: 0.99  # discount factor
+    lambda: 0.95  # GAE parameter
+    clip_epsilon: 0.2  # PPO clip parameter
+    value_coef: 0.5  # value loss coefficient
+    entropy_coef: 0.01  # entropy coefficient
+    max_grad_norm: 0.5  # gradient clipping
+    
+  # Multi-agent settings
+  multi_agent:
+    num_agents: 4
+    state_dim: 48
+    action_dim: 6
+    communication: "centralized"  # centralized, decentralized, mixed
+    
+  # Experience replay
+  replay_buffer:
+    capacity: 100000
+    batch_size: 64
+    priority_alpha: 0.6
+    priority_beta: 0.4
+    beta_increment: 0.001
+
+# Baseline Controllers Configuration
+baseline_controllers:
+  # Fixed Timer Controller
+  fixed_timer:
+    cycle_time: 60.0  # seconds
+    green_split: 0.5  # proportion of cycle for green
+    yellow_time: 3.0  # seconds
+    
+  # Actuated Controller  
+  actuated:
+    min_green: 10.0  # minimum green time
+    max_green: 30.0  # maximum green time
+    extension: 5.0   # extension time when vehicles detected
+    gap_time: 3.0    # gap between vehicles to switch
+    
+  # Adaptive Controller
+  adaptive:
+    min_green: 10.0
+    max_green: 45.0
+    learning_rate: 0.1
+    density_threshold_high: 0.7
+    density_threshold_low: 0.3
+    
+  # Manual Controller
+  manual:
+    intervention_probability: 0.02  # chance of manual override
+    default_green_time: 20.0
+    default_red_time: 10.0
+
+# Emergency Vehicle System
+emergency:
+  detection:
+    range: 100.0  # meters
+    methods:
+      acoustic:
+        enabled: true
+        weight: 0.7
+      optical: 
+        enabled: true
+        weight: 0.6
+      v2i:
+        enabled: true
+        weight: 0.9
+      predefined:
+        enabled: true
+        weight: 1.0
+        
+  priority:
+    green_wave_speed: 10.0  # m/s
+    extended_green_time: 20.0  # seconds
+    clearance_duration: 15.0   # seconds
+    
+  vehicle_types:
+    ambulance:
+      priority: 10
+      siren_frequency: 2.0  # Hz
+    fire_truck:
+      priority: 9  
+      siren_frequency: 1.5
+    police:
+      priority: 8
+      siren_frequency: 2.5
+
+# Coordination System
+coordination:
+  strategies:
+    green_wave:
+      enabled: true
+      wave_speed: 10.0
+      min_vehicles: 3
+    pressure_based:
+      enabled: true
+      pressure_threshold_high: 0.7
+      pressure_threshold_low: 0.2
+    centralized:
+      enabled: true
+      optimization_interval: 10  # steps
+      
+  coordination_matrix:
+    - [1.0, 0.8, 0.8, 0.6]  # J0 coordination
+    - [0.8, 1.0, 0.6, 0.8]  # J1 coordination  
+    - [0.8, 0.6, 1.0, 0.8]  # J2 coordination
+    - [0.6, 0.8, 0.8, 1.0]  # J3 coordination
+
+# Mixed Control Configuration
+mixed_control:
+  modes:
+    ai_only:
+      enabled: true
+      description: "Pure AI control"
+    baseline_only:
+      enabled: true  
+      description: "Traditional control methods"
+    hybrid:
+      enabled: true
+      description: "Mix of AI and baseline per junction"
+    adaptive_switching:
+      enabled: true
+      performance_threshold: 0.6
+    ensemble:
+      enabled: true
+      voting: "weighted"  # weighted, majority
+      
+  junction_assignments:
+    all_ai:
+      enabled: true
+    all_baseline:
+      enabled: true
+    alternating: 
+      enabled: true
+    traffic_aware:
+      enabled: true
+    performance_based:
+      enabled: true
+
+# Curriculum Learning Configuration
+curriculum:
+  # Difficulty levels
+  difficulties:
+    easy:
+      vehicle_density: 0.3
+      emergency_probability: 0.05
+      max_vehicles: 15
+    medium:
+      vehicle_density: 0.5
+      emergency_probability: 0.1  
+      max_vehicles: 25
+    hard:
+      vehicle_density: 0.7
+      emergency_probability: 0.15
+      max_vehicles: 35
+    expert:
+      vehicle_density: 0.8
+      emergency_probability: 0.2
+      max_vehicles: 40
+    master:
+      vehicle_density: 0.9
+      emergency_probability: 0.25
+      max_vehicles: 50
+      
+  # Training stages
+  stages:
+    - id: 1
+      name: "Basic Traffic Control"
+      difficulty: "easy"
+      scenarios: ["normal_traffic"]
+      performance_threshold: 0.7
+      max_duration: 600
+      
+    - id: 2  
+      name: "Emergency Response Basics"
+      difficulty: "easy"
+      scenarios: ["normal_traffic", "emergency_response"]
+      performance_threshold: 0.65
+      max_duration: 600
+      
+    - id: 3
+      name: "Moderate Traffic"
+      difficulty: "medium" 
+      scenarios: ["normal_traffic", "rush_hour"]
+      performance_threshold: 0.7
+      max_duration: 600
+      
+    - id: 4
+      name: "Complex Scenarios"
+      difficulty: "medium"
+      scenarios: ["emergency_response", "congestion"] 
+      performance_threshold: 0.65
+      max_duration: 600
+      
+    - id: 5
+      name: "Advanced Traffic Management"
+      difficulty: "hard"
+      scenarios: ["rush_hour", "emergency_response", "congestion"]
+      performance_threshold: 0.6
+      max_duration: 600
+      
+    - id: 6
+      name: "Expert Scenarios"
+      difficulty: "expert"
+      scenarios: ["accident", "weather_event", "special_event"]
+      performance_threshold: 0.55
+      max_duration: 600
+      
+    - id: 7
+      name: "Master Level"
+      difficulty: "master" 
+      scenarios: ["normal_traffic", "rush_hour", "emergency_response", "congestion", "accident", "weather_event", "special_event"]
+      performance_threshold: 0.5
+      max_duration: 600
+
+# Reward Configuration
+rewards:
+  # Positive rewards
+  waiting_time_improvement: 0.01  # per second reduction
+  vehicle_cleared: 0.1           # per vehicle
+  average_speed: 0.05            # per m/s
+  emergency_response: 0.2        # per second faster than 30s
+  
+  # Negative rewards (penalties)
+  action_switch: -0.1            # for switching traffic lights
+  congestion_penalty: -0.5       # for congestion > 80%
+  emergency_delay: -1.0          # per second over 30s for emergency
+  collision: -10.0               # for vehicle collisions
+  
+  # Normalization
+  clip_value: 10.0               # clip extreme rewards
+
+# Training Configuration
+training:
+  # General training parameters
+  total_timesteps: 1000000
+  save_interval: 10000           # save model every N steps
+  eval_interval: 5000            # evaluate every N steps
+  log_interval: 1000             # log metrics every N steps
+  
+  # Parallel training
+  num_envs: 4                    # number of parallel environments
+  num_workers: 2                 # number of training workers
+  
+  # Early stopping
+  early_stopping:
+    enabled: true
+    patience: 10                 # episodes without improvement
+    min_delta: 0.01              # minimum improvement threshold
+    
+  # Checkpointing
+  checkpoint:
+    save_best_only: true
+    monitor_metric: "mean_reward"
+    mode: "max"                  # max for reward, min for loss
+
+# Evaluation Configuration
+evaluation:
+  episodes: 10                   # number of evaluation episodes
+  render: true                   # render during evaluation
+  save_videos: false             # save evaluation videos
+  metrics:
+    - "mean_reward"
+    - "waiting_time"
+    - "throughput" 
+    - "emergency_response_time"
+    - "average_speed"
+    - "congestion_level"
+
+# Web Application Configuration
+web_app:
+  host: "localhost"
+  port: 5000
+  debug: false
+  secret_key: "traffic_ai_secret_key_2024"
+  
+  # SocketIO configuration
+  socketio:
+    ping_timeout: 60
+    ping_interval: 25
+    async_mode: "threading"
+    
+  # Frontend configuration  
+  frontend:
+    update_interval: 1000        # ms between updates
+    max_data_points: 100         # max points in charts
+    emergency_alert_duration: 10 # seconds to show emergency alerts
+
+# Data and Logging Configuration
+data:
+  # Paths
+  model_dir: "data/models"
+  log_dir: "data/logs"
+  results_dir: "data/results"
+  datasets_dir: "data/datasets"
+  
+  # Model saving
+  save_format: "pytorch"         # pytorch, onnx
+  keep_best_models: 3            # number of best models to keep
+  
+  # Logging
+  tensorboard: true
+  wandb: false                   # Weights & Biases integration
+  wandb_project: "traffic-ai"
+  
+  # Data collection
+  collect_trajectories: true
+  trajectory_format: "hdf5"      # hdf5, json, pickle
+
+# Visualization Configuration
+visualization:
+  # Canvas settings
+  canvas_width: 800
+  canvas_height: 600
+  background_color: [44, 62, 80]  # Dark blue
+  
+  # Vehicle colors
+  vehicle_colors:
+    car: [52, 152, 219]    # Blue
+    truck: [241, 196, 15]  # Yellow  
+    motorcycle: [46, 204, 113]  # Green
+    emergency: [231, 76, 60]    # Red
+    
+  # Traffic light colors
+  light_colors:
+    green: [46, 204, 113]
+    yellow: [243, 156, 18]  
+    red: [231, 76, 60]
+    
+  # Animation
+  animation_speed: 1.0           # multiplier for animation speed
+  show_metrics: true             # show real-time metrics
+  show_vehicle_ids: false        # show vehicle IDs (for debugging)
+
+# Performance Monitoring
+monitoring:
+  # Real-time metrics
+  metrics_update_interval: 1.0   # seconds
+  alert_thresholds:
+    waiting_time: 300.0          # seconds
+    congestion_level: 0.8        # 80%
+    emergency_response_time: 30.0 # seconds
+    
+  # System health
+  memory_warning: 0.8            # 80% memory usage
+  cpu_warning: 0.9               # 90% CPU usage
+  
+  # Logging
+  performance_log_interval: 60.0 # seconds
+
+# Hardware Configuration
+hardware:
+  # GPU configuration
+  gpu:
+    enabled: true
+    device_id: 0                 # which GPU to use
+    memory_fraction: 0.8         # fraction of GPU memory to use
+    
+  # CPU configuration  
+  cpu:
+    num_threads: 4               # number of CPU threads
+    pin_memory: true             # pin memory for faster data transfer
+    
+  # Distributed training
+  distributed:
+    enabled: false
+    num_nodes: 1
+    rank: 0
+
+# Experimental Features
+experimental:
+  # New algorithms
+  use_attention: false           # use attention mechanisms
+  use_curiosity: false           # curiosity-driven exploration
+  use_hierarchical: false        # hierarchical reinforcement learning
+  
+  # Advanced techniques
+  domain_randomization: false    # randomize environment parameters
+  self_play: false               # train against previous versions
+  meta_learning: false           # learn to adapt quickly
+  
+  # Risk-sensitive training
+  risk_sensitive: false
+  risk_aversion: 1.0             # risk aversion parameter
+
+# Debugging and Development
+debug:
+  # Debug flags
+  verbose: false
+  print_actions: false
+  print_rewards: false
+  print_states: false
+  
+  # Testing
+  test_mode: false
+  fixed_seed: true
+  deterministic: false
+  
+  # Profiling
+  profile_performance: false
+  profile_interval: 1000         # steps between profiling

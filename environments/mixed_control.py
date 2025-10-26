@@ -75,7 +75,7 @@ class MixedControlManager:
     
     def _initialize_junction_assignments(self):
         """Initialize default junction assignments"""
-        junctions = ['J1', 'J2', 'J3', 'J4']
+        junctions = ['J0', 'J1', 'J2', 'J3']
         
         if self.junction_assignment == JunctionAssignment.ALL_AI:
             self.junction_assignments = {jid: 'ai' for jid in junctions}
@@ -85,8 +85,8 @@ class MixedControlManager:
         
         elif self.junction_assignment == JunctionAssignment.ALTERNATING:
             self.junction_assignments = {
-                'J1': 'ai', 'J2': 'baseline', 
-                'J3': 'ai', 'J4': 'baseline'
+                'J0': 'ai', 'J1': 'baseline', 
+                'J2': 'ai', 'J3': 'baseline'
             }
         
         elif self.junction_assignment == JunctionAssignment.TRAFFIC_AWARE:
@@ -377,8 +377,8 @@ class MixedControlManager:
     def _calculate_junction_density(self, junction_id: str, vehicles: Dict) -> float:
         """Calculate traffic density around a junction"""
         junction_positions = {
-            'J1': [100, 100], 'J2': [300, 100],
-            'J3': [100, 300], 'J4': [300, 300]
+            'J0': [100, 100], 'J1': [300, 100],
+            'J2': [100, 300], 'J3': [300, 300]
         }
         
         junction_pos = junction_positions.get(junction_id, [0, 0])
@@ -400,8 +400,8 @@ class MixedControlManager:
                 for emergency in emergencies.values():
                     emergency_pos = getattr(emergency, 'position', [0, 0])
                     junction_pos = {
-                        'J1': [100, 100], 'J2': [300, 100],
-                        'J3': [100, 300], 'J4': [300, 300]
+                        'J0': [100, 100], 'J1': [300, 100],
+                        'J2': [100, 300], 'J3': [300, 300]
                     }.get(junction_id, [0, 0])
                     
                     distance = np.linalg.norm(np.array(emergency_pos) - np.array(junction_pos))
@@ -497,10 +497,10 @@ if __name__ == "__main__":
     }
     
     test_lights = {
-        'J1': {'state': 'G', 'phase_start_time': time.time() - 30},
-        'J2': {'state': 'R', 'phase_start_time': time.time() - 10},
-        'J3': {'state': 'G', 'phase_start_time': time.time() - 5},
-        'J4': {'state': 'Y', 'phase_start_time': time.time() - 1}
+        'J0': {'state': 'G', 'phase_start_time': time.time() - 30},
+        'J1': {'state': 'R', 'phase_start_time': time.time() - 10},
+        'J2': {'state': 'G', 'phase_start_time': time.time() - 5},
+        'J3': {'state': 'Y', 'phase_start_time': time.time() - 1}
     }
     
     test_metrics = {

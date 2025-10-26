@@ -1,3 +1,4 @@
+# agents/mappo_agent.py
 import os
 import sys
 import torch
@@ -5,25 +6,12 @@ import torch.nn as nn
 import torch.optim as optim
 import numpy as np
 from typing import List, Tuple, Dict
-import gymnasium as gym
-from gymnasium import spaces
 import random
 from collections import deque
 
+# Add project root to path
 project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(project_root)
-
-try:
-    from config import MODEL_DIR, TRAINING_CONFIG
-except ImportError:
-    # Fallback values
-    MODEL_DIR = "data/models"
-    TRAINING_CONFIG = {
-        'learning_rate': 0.001,
-        'gamma': 0.99,
-        'batch_size': 64,
-        'epochs': 1000,
-    }
 
 class ActorNetwork(nn.Module):
     def __init__(self, input_dim: int, output_dim: int, hidden_dim: int = 128):
@@ -39,33 +27,6 @@ class ActorNetwork(nn.Module):
     
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         return self.network(x)
-
-def save_models(self, episode: int):
-    """Save all agent models using config paths"""
-    # Create model directory if it doesn't exist
-    os.makedirs(MODEL_DIR, exist_ok=True)
-    
-    for i, actor in enumerate(self.actors):
-        torch.save(actor.state_dict(), f"{MODEL_DIR}/actor_agent_{i}_ep_{episode}.pth")
-    
-    for i, critic in enumerate(self.critics):
-        torch.save(critic.state_dict(), f"{MODEL_DIR}/critic_agent_{i}_ep_{episode}.pth")
-    
-    print(f"💾 Models saved to {MODEL_DIR} at episode {episode}")
-
-def load_models(self, episode: int):
-    """Load agent models"""
-    for i, actor in enumerate(self.actors):
-        model_path = f"{MODEL_DIR}/actor_agent_{i}_ep_{episode}.pth"
-        if os.path.exists(model_path):
-            actor.load_state_dict(torch.load(model_path))
-    
-    for i, critic in enumerate(self.critics):
-        model_path = f"{MODEL_DIR}/critic_agent_{i}_ep_{episode}.pth"
-        if os.path.exists(model_path):
-            critic.load_state_dict(torch.load(model_path))
-    
-    print(f"📂 Models loaded from {MODEL_DIR} episode {episode}")
 
 class CriticNetwork(nn.Module):
     def __init__(self, input_dim: int, hidden_dim: int = 128):
@@ -101,6 +62,16 @@ class MAPPOAgent:
         
         # Experience replay
         self.memory = deque(maxlen=10000)
+        
+        # Get config for model directory
+        try:
+            from utils.config_loader import get_config
+            config = get_config()
+            self.model_dir = config.get('data.model_dir', 'data/models')
+        except ImportError:
+            self.model_dir = 'data/models'
+        
+        print(f"✅ MAPPOAgent initialized with {num_agents} agents")
         
     def select_actions(self, states: List[np.ndarray]) -> List[int]:
         """Select actions for all agents"""
@@ -162,3 +133,52 @@ class MAPPOAgent:
             self.actor_optimizers[i].zero_grad()
             actor_loss.backward()
             self.actor_optimizers[i].step()
+    
+    def save_models(self, episode: int):
+        """Save all agent models"""
+        # Create model directory if it doesn't exist
+        os.makedirs(self.model_dir, exist_ok=True)
+        
+        for i, actor in enumerate(self.actors):
+            torch.save(actor.state_dict(), f"{self.model_dir}/actor_agent_{i}_ep_{episode}.pth")
+        
+        for i, critic in enumerate(self.critics):
+            torch.save(critic.state_dict(), f"{self.model_dir}/critic_agent_{i}_ep_{episode}.pth")
+        
+        print(f"💾 Models saved to {self.model_dir} at episode {episode}")
+    
+    def load_models(self, episode: int):
+        """Load agent models"""
+        models_loaded = 0
+        
+        for i, actor in enumerate(self.actors):
+            model_path = f"{self.model_dir}/actor_agent_{i}_ep_{episode}.pth"
+            if os.path.exists(model_path):
+                actor.load_state_dict(torch.load(model_path))
+                models_loaded += 1
+        
+        for i, critic in enumerate(self.critics):
+            model_path = f"{self.model_dir}/critic_agent_{i}_ep_{episode}.pth"
+            if os.path.exists(model_path):
+                critic.load_state_dict(torch.load(model_path))
+                models_loaded += 1
+        
+        if models_loaded > 0:
+            print(f"📂 Loaded {models_loaded} models from episode {episode}")
+        else:
+            print(f"⚠️ No models found for episode {episode}")
+    
+    def get_action(self, state: np.ndarray, agent_id: int = 0) -> int:
+        """Get action for a single agent (for compatibility)"""
+        state_tensor = torch.FloatTensor(state).unsqueeze(0)
+        action_probs = self.actors[agent_id](state_tensor)
+        action_dist = torch.distributions.Categorical(action_probs)
+        return action_dist.sample().item()
+
+# For backward compatibility
+if __name__ == "__main__":
+    # Test with correct dimensions
+    agent = MAPPOAgent(num_agents=4, state_dim=48, action_dim=4)  
+    test_states = [np.random.random(48) for _ in range(4)]
+    actions, log_probs = agent.select_actions(test_states)
+    print(f"✅ MAPPOAgent test successful - Actions: {actions}")
